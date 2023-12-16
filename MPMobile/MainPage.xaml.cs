@@ -1,11 +1,14 @@
-﻿namespace MPMobile
+﻿using MPMobile.ServiceExternal;
+
+namespace MPMobile
 {
     public partial class MainPage : ContentPage
     {
         int count = 0;
-
+        MPServiceExternal externalService;
         public MainPage()
         {
+            externalService = new MPServiceExternal();
             InitializeComponent();
         }
 
@@ -13,12 +16,15 @@
 
         private void cameraView_BarcodeDetected(object sender, Camera.MAUI.ZXingHelper.BarcodeEventArgs args)
         {
-            MainThread.BeginInvokeOnMainThread(() =>
+           
+            MainThread.BeginInvokeOnMainThread(async () =>
             {
                 //txtmatricula.Text = $"{args.Result[0].BarcodeFormat}: {args.Result[0].Text}";
                 txtmatricula.Text = $"{args.Result[0].Text}";
+               var result = await externalService.AcessoAsync(txtmatricula.Text, lbSentido.Text, txtIsVisitante.IsToggled);
                 //colocar o código de consulta a API por aqui...
                 cameraView.IsVisible = false;
+                DisplayAlert("Mensagem", result, "OK");
             });
         }
 
@@ -41,15 +47,46 @@
             //acessando Pagina de configuração.
             if (txtmatricula.Text.ToUpper().Equals("ADMIN"))
             {
-            Navigation.PushAsync(new Configuration());
+              Navigation.PushAsync(new Configuration());
 
             }
             else
             {
-                DisplayAlert("Erro", "Senha de configuração inválida.", "OK");
+                //inserir validação se o campo digitado é apenas numero.
+
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+
+                    var result = await externalService.AcessoAsync(txtmatricula.Text, lbSentido.Text, txtIsVisitante.IsToggled);
+                    DisplayAlert("Mensagem", result, "OK");
+                });
             }
            
 
+        }
+
+        private void OnSwitchToggledVisitante(object sender, ToggledEventArgs e)
+        {
+            if (txtIsVisitante.IsToggled)
+            {
+                lbVisitante.Text = "Consulta Pessoa";
+            }
+            else
+            {
+                lbVisitante.Text = "Consulta Visitante";
+            }
+        }
+
+        private void OnSwitchToggledSentido(object sender, ToggledEventArgs e)
+        {
+            if (txtSentido.IsToggled)
+            {
+                lbSentido.Text = "Entrada";
+            }
+            else
+            {
+                lbSentido.Text = "Saída";
+            }
         }
     }
 
