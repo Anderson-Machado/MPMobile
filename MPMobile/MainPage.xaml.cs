@@ -62,11 +62,11 @@ namespace MPMobile
                 {
 
                     var result = await externalService.AcessoAsync(txtmatricula.Text, lbSentido.Text, txtIsVisitante.IsToggled);
-                    DisplayAlert("Mensagem", result.Message, "OK");
                     foto.Opacity = 0;
                     setImage(result.Imagem);
                     await foto.FadeTo(1, 2000);
-                   
+                    lbNome.Text = result.Name;
+                    status.Text = result.Message;
 
                 });
             }
@@ -107,7 +107,7 @@ namespace MPMobile
                 
             }
             foto.Source = "/Resources/Imagens/pessoa.png";
-            txtmatricula.Text = string.Empty;
+           
         }
 
         
