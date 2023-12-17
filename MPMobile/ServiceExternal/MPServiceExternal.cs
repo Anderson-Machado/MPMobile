@@ -13,11 +13,11 @@ namespace MPMobile.ServiceExternal
     {
       
         
-        public async Task<string> AcessoAsync(string matricula, string type, bool isVisitante = false)
+        public async Task<AppResponse> AcessoAsync(string matricula, string type, bool isVisitante = false)
         {
             try
             {
-                var url = isVisitante ? " https://3bc6-187-111-14-135.ngrok.io/Pessoa" : " https://3bc6-187-111-14-135.ngrok.io/Visitante";
+                var url = isVisitante ? " https://8d0a-187-111-14-135.ngrok.io/Pessoa" : " https://8d0a-187-111-14-135.ngrok.io/Visitante";
 
                 var body = new { Equipamento = 1, Type = type, Matricula = matricula };
 
@@ -39,23 +39,25 @@ namespace MPMobile.ServiceExternal
 
                         // Desserializando a resposta para a classe AppResponse
                         AppResponse appResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<AppResponse>(respostaJson);
-                        return appResponse.Message;
+                        return appResponse;
 
                     }
                     else if (resposta.StatusCode == System.Net.HttpStatusCode.BadRequest)
                     {
                         string respostaJson = await resposta.Content.ReadAsStringAsync();
-                        ErroResponse erroResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<ErroResponse>(respostaJson);
-                        return erroResponse.Detail;
+                        var erroResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<ErroResponse>(respostaJson);
+                        var error = new AppResponse()
+                        {
+                            Message = erroResponse.Detail
+                        };
+                        return error;
                     }
                 }
-                return string.Empty;
+                return new AppResponse() { Message = "Erro inesperado, por favor entre em contado." };
             }
             catch (Exception ex)
             {
-                //futuramente salvar dados de forma offline 
-
-                return "Off - Line";
+                return new AppResponse() { Message = "OffLine!" };
             }
         }
     }

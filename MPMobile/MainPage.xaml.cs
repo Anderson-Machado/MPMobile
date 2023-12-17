@@ -1,5 +1,6 @@
 ﻿using MPMobile.ServiceExternal;
 
+
 namespace MPMobile
 {
     public partial class MainPage : ContentPage
@@ -12,20 +13,21 @@ namespace MPMobile
             InitializeComponent();
         }
 
-     
+
 
         private void cameraView_BarcodeDetected(object sender, Camera.MAUI.ZXingHelper.BarcodeEventArgs args)
         {
-           
+
             MainThread.BeginInvokeOnMainThread(async () =>
             {
                 //txtmatricula.Text = $"{args.Result[0].BarcodeFormat}: {args.Result[0].Text}";
                 txtmatricula.Text = $"{args.Result[0].Text}";
-               var result = await externalService.AcessoAsync(txtmatricula.Text, lbSentido.Text, txtIsVisitante.IsToggled);
+                var result = await externalService.AcessoAsync(txtmatricula.Text, lbSentido.Text, txtIsVisitante.IsToggled);
                 //colocar o código de consulta a API por aqui...
                 cameraView.IsVisible = false;
                 foto.IsVisible = true;
-                DisplayAlert("Mensagem", result, "OK");
+                setImage(result.Imagem);
+                DisplayAlert("Mensagem", result.Message, "OK");
             });
         }
 
@@ -49,7 +51,7 @@ namespace MPMobile
             //acessando Pagina de configuração.
             if (txtmatricula.Text.ToUpper().Equals("ADMIN"))
             {
-              Navigation.PushAsync(new Configuration());
+                Navigation.PushAsync(new Configuration());
 
             }
             else
@@ -60,10 +62,15 @@ namespace MPMobile
                 {
 
                     var result = await externalService.AcessoAsync(txtmatricula.Text, lbSentido.Text, txtIsVisitante.IsToggled);
-                    DisplayAlert("Mensagem", result, "OK");
+                    DisplayAlert("Mensagem", result.Message, "OK");
+                    foto.Opacity = 0;
+                    setImage(result.Imagem);
+                    await foto.FadeTo(1, 2000);
+                   
+
                 });
             }
-           
+
 
         }
 
@@ -90,6 +97,21 @@ namespace MPMobile
                 lbSentido.Text = "Saída";
             }
         }
+
+        private void setImage(byte[]? imagem)
+        {
+            if (imagem is not null)
+            {
+                ImageSource imageSource = ImageSource.FromStream(() => new MemoryStream(imagem));
+                foto.Source = imageSource;
+                
+            }
+            foto.Source = "/Resources/Imagens/pessoa.png";
+            txtmatricula.Text = string.Empty;
+        }
+
+        
+       
     }
 
 }
