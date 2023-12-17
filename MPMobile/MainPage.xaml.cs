@@ -24,6 +24,7 @@ namespace MPMobile
                var result = await externalService.AcessoAsync(txtmatricula.Text, lbSentido.Text, txtIsVisitante.IsToggled);
                 //colocar o código de consulta a API por aqui...
                 cameraView.IsVisible = false;
+                foto.IsVisible = true;
                 DisplayAlert("Mensagem", result, "OK");
             });
         }
@@ -31,6 +32,7 @@ namespace MPMobile
         private void Button_Clicked(object sender, EventArgs e)
         {
             cameraView.IsVisible = true;
+            foto.IsVisible = false;
             if (cameraView.Cameras.Count > 0)
             {
                 cameraView.Camera = cameraView.Cameras.First();
