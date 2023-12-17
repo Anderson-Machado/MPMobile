@@ -20,14 +20,20 @@ namespace MPMobile
 
             MainThread.BeginInvokeOnMainThread(async () =>
             {
+                lbNome.Text = string.Empty;
+                status.Text = string.Empty;
                 //txtmatricula.Text = $"{args.Result[0].BarcodeFormat}: {args.Result[0].Text}";
                 txtmatricula.Text = $"{args.Result[0].Text}";
                 var result = await externalService.AcessoAsync(txtmatricula.Text, lbSentido.Text, txtIsVisitante.IsToggled);
                 //colocar o código de consulta a API por aqui...
                 cameraView.IsVisible = false;
                 foto.IsVisible = true;
+                lbNome.Text = result.Name;
+                status.Text = result.Message;
+                foto.Opacity = 0;
                 setImage(result.Imagem);
-                DisplayAlert("Mensagem", result.Message, "OK");
+                await foto.FadeTo(1, 2000);
+
             });
         }
 
@@ -60,14 +66,25 @@ namespace MPMobile
 
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
-
+                    lbNome.Text = string.Empty;
+                    status.Text = string.Empty;
                     var result = await externalService.AcessoAsync(txtmatricula.Text, lbSentido.Text, txtIsVisitante.IsToggled);
+                    lbNome.Text = result.Name;
+                    status.Text = result.Message;
+                    status.IsVisible = true;
+                    if (result.Message == "Liberado")
+                    {
+                        status.BackgroundColor = Colors.Green;
+                        status.TextColor = Colors.White;
+                    }
+                    else
+                    {
+                        status.BackgroundColor = Colors.Red;
+                        status.TextColor = Colors.White;
+                    }
                     foto.Opacity = 0;
                     setImage(result.Imagem);
                     await foto.FadeTo(1, 2000);
-                    lbNome.Text = result.Name;
-                    status.Text = result.Message;
-
                 });
             }
 
@@ -104,14 +121,14 @@ namespace MPMobile
             {
                 ImageSource imageSource = ImageSource.FromStream(() => new MemoryStream(imagem));
                 foto.Source = imageSource;
-                
+
             }
             foto.Source = "/Resources/Imagens/pessoa.png";
-           
+
         }
 
-        
-       
+
+
     }
 
 }

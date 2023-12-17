@@ -8,7 +8,9 @@
     <StackLayout Padding="20">
         <Label x:Name="lbNome"  Text="" FontSize="20" HorizontalOptions="CenterAndExpand" Margin="0,0,0,10"/>
         <Image x:Name="foto" Source="pessoa.png" WidthRequest="300" HeightRequest="300" Margin="0,0,0,10" Aspect="AspectFill" IsVisible="true" />
-        <Label x:Name="status" Text="" FontSize="20" HorizontalOptions="CenterAndExpand" Margin="0,0,0,10"/>
+      
+        <Button x:Name="status" CornerRadius ="30" WidthRequest="290" Margin="0,0,0,0" IsVisible="false" Text="" HorizontalOptions="Center"/>
+
         <cv:CameraView  x:Name="cameraView" WidthRequest="300" HeightRequest="300" BarCodeDetectionEnabled="True" IsVisible="False"
          BarcodeDetected="cameraView_BarcodeDetected"/>
         

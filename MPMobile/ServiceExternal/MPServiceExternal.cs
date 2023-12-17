@@ -17,7 +17,7 @@ namespace MPMobile.ServiceExternal
         {
             try
             {
-                var url = isVisitante ? " https://8d0a-187-111-14-135.ngrok.io/Pessoa" : " https://8d0a-187-111-14-135.ngrok.io/Visitante";
+                var url = isVisitante ? "https://7441-187-111-14-135.ngrok.io/Pessoa" : "https://7441-187-111-14-135.ngrok.io/Visitante";
 
                 var body = new { Equipamento = 1, Type = type, Matricula = matricula };
 
