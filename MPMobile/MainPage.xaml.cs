@@ -20,6 +20,7 @@ namespace MPMobile
 
             MainThread.BeginInvokeOnMainThread(async () =>
             {
+               
                 lbNome.Text = string.Empty;
                 status.Text = string.Empty;
                 //txtmatricula.Text = $"{args.Result[0].BarcodeFormat}: {args.Result[0].Text}";
@@ -27,19 +28,33 @@ namespace MPMobile
                 var result = await externalService.AcessoAsync(txtmatricula.Text, lbSentido.Text, txtIsVisitante.IsToggled);
                 //colocar o código de consulta a API por aqui...
                 cameraView.IsVisible = false;
+
                 foto.IsVisible = true;
                 lbNome.Text = result.Name;
                 status.Text = result.Message;
+                status.IsVisible = true;
+                if (result.Message == "Liberado")
+                {
+                    status.BackgroundColor = Colors.Green;
+                    status.TextColor = Colors.White;
+                }
+                else
+                {
+                    status.BackgroundColor = Colors.Red;
+                    status.TextColor = Colors.White;
+                }
                 foto.Opacity = 0;
                 setImage(result.Imagem);
-                await foto.FadeTo(1, 2000);
-
+                TextToSpeech.Default.SpeakAsync(result.Message);
+                await foto.FadeTo(1, 1000);
+                
             });
         }
 
         private void Button_Clicked(object sender, EventArgs e)
         {
             cameraView.IsVisible = true;
+            status.IsVisible = false;
             foto.IsVisible = false;
             if (cameraView.Cameras.Count > 0)
             {
@@ -49,6 +64,7 @@ namespace MPMobile
                     await cameraView.StopCameraAsync();
                     await cameraView.StartCameraAsync();
                 });
+
             }
         }
 
@@ -84,7 +100,8 @@ namespace MPMobile
                     }
                     foto.Opacity = 0;
                     setImage(result.Imagem);
-                    await foto.FadeTo(1, 2000);
+                    TextToSpeech.Default.SpeakAsync(result.Message);
+                    await foto.FadeTo(1, 1000);
                 });
             }
 
