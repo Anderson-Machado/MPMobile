@@ -11,6 +11,7 @@ namespace MPMobile
         {
             externalService = new MPServiceExternal();
             InitializeComponent();
+           
         }
 
 
@@ -20,16 +21,17 @@ namespace MPMobile
 
             MainThread.BeginInvokeOnMainThread(async () =>
             {
-               
+                await cameraView.StopCameraAsync();
                 lbNome.Text = string.Empty;
                 status.Text = string.Empty;
                 //txtmatricula.Text = $"{args.Result[0].BarcodeFormat}: {args.Result[0].Text}";
                 txtmatricula.Text = $"{args.Result[0].Text}";
+                lbNome.Text = string.Empty;
+                status.Text = string.Empty;
                 var result = await externalService.AcessoAsync(txtmatricula.Text, lbSentido.Text, txtIsVisitante.IsToggled);
                 //colocar o código de consulta a API por aqui...
-                cameraView.IsVisible = false;
 
-                foto.IsVisible = true;
+             
                 lbNome.Text = result.Name;
                 status.Text = result.Message;
                 status.IsVisible = true;
@@ -46,9 +48,12 @@ namespace MPMobile
                 foto.Opacity = 0;
                 setImage(result.Imagem);
                 TextToSpeech.Default.SpeakAsync(result.Message);
+                cameraView.IsVisible = false;
+                foto.IsVisible = true;
                 await foto.FadeTo(1, 1000);
-                
             });
+
+            // Espere pela conclusão, se desejar sincronizar
         }
 
         private void Button_Clicked(object sender, EventArgs e)
