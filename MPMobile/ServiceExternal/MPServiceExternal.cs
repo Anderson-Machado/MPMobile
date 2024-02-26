@@ -53,7 +53,7 @@ namespace MPMobile.ServiceExternal
                         return error;
                     }
                 }
-                return new AppResponse() { Message = "Erro inesperado, por favor entre em contado." };
+                return new AppResponse() { Message = "Off-Line" };
             }
             catch (Exception ex)
             {

@@ -1,4 +1,6 @@
-﻿using MPMobile.ServiceExternal;
+﻿using MPMobile.Data;
+using MPMobile.Entity;
+using MPMobile.ServiceExternal;
 
 
 namespace MPMobile
@@ -7,11 +9,14 @@ namespace MPMobile
     {
         int count = 0;
         MPServiceExternal externalService;
+        DatabaseContext _database;
         public MainPage()
         {
             externalService = new MPServiceExternal();
             InitializeComponent();
-           
+            _database = new();
+           // title.Title =  Count().Result.ToString();
+
         }
 
 
@@ -30,8 +35,7 @@ namespace MPMobile
                 status.Text = string.Empty;
                 var result = await externalService.AcessoAsync(txtmatricula.Text, lbSentido.Text, txtIsVisitante.IsToggled);
                 //colocar o código de consulta a API por aqui...
-
-             
+                             
                 lbNome.Text = result.Name;
                 status.Text = result.Message;
                 status.IsVisible = true;
@@ -44,6 +48,7 @@ namespace MPMobile
                 {
                     status.BackgroundColor = Colors.Red;
                     status.TextColor = Colors.White;
+                    await CreateInDBLocal();
                 }
                 foto.Opacity = 0;
                 setImage(result.Imagem);
@@ -97,11 +102,14 @@ namespace MPMobile
                     {
                         status.BackgroundColor = Colors.Green;
                         status.TextColor = Colors.White;
+                        //inserindo em massa aqui
+                        //TODO: fazer um endpoint para passar um Array e AddRange no MS. Deixar de setar a Data pelo Back no off line
                     }
                     else
                     {
                         status.BackgroundColor = Colors.Red;
                         status.TextColor = Colors.White;
+                        await CreateInDBLocal();
                     }
                     foto.Opacity = 0;
                     setImage(result.Imagem);
@@ -111,6 +119,18 @@ namespace MPMobile
             }
 
 
+        }
+
+        private async Task CreateInDBLocal()
+        {
+            //Salvar local
+            var entity = new OffLineEntity()
+            {
+                Date = DateTime.Now,
+                Matricula = txtmatricula.Text,
+                Sentido = lbSentido.Text
+            };
+            await _database.AddItemAsync<OffLineEntity>(entity);
         }
 
         private void OnSwitchToggledVisitante(object sender, ToggledEventArgs e)
@@ -148,8 +168,6 @@ namespace MPMobile
             foto.Source = "/Resources/Imagens/pessoa.png";
 
         }
-
-
 
     }
 
