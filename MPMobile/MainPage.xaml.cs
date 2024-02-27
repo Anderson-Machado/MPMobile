@@ -8,14 +8,14 @@ namespace MPMobile
     public partial class MainPage : ContentPage
     {
         int count = 0;
-        MPServiceExternal externalService;
+        MPServiceExternal _externalService;
         DatabaseContext _database;
         public MainPage()
         {
-            externalService = new MPServiceExternal();
+            _externalService = new MPServiceExternal();
             InitializeComponent();
             _database = new();
-           // title.Title =  Count().Result.ToString();
+            // title.Title =  Count().Result.ToString();
 
         }
 
@@ -33,9 +33,9 @@ namespace MPMobile
                 txtmatricula.Text = $"{args.Result[0].Text}";
                 lbNome.Text = string.Empty;
                 status.Text = string.Empty;
-                var result = await externalService.AcessoAsync(txtmatricula.Text, lbSentido.Text, txtIsVisitante.IsToggled);
+                var result = await _externalService.AcessoAsync(txtmatricula.Text, lbSentido.Text, txtIsVisitante.IsToggled);
                 //colocar o código de consulta a API por aqui...
-                             
+
                 lbNome.Text = result.Name;
                 status.Text = result.Message;
                 status.IsVisible = true;
@@ -48,14 +48,21 @@ namespace MPMobile
                 {
                     status.BackgroundColor = Colors.Red;
                     status.TextColor = Colors.White;
+
+                }
+                if (result.Message == "Offline")
+                {
                     await CreateInDBLocal();
                 }
+              
                 foto.Opacity = 0;
                 setImage(result.Imagem);
                 TextToSpeech.Default.SpeakAsync(result.Message);
                 cameraView.IsVisible = false;
                 foto.IsVisible = true;
                 await foto.FadeTo(1, 1000);
+
+
             });
 
             // Espere pela conclusão, se desejar sincronizar
@@ -83,7 +90,8 @@ namespace MPMobile
             //acessando Pagina de configuração.
             if (txtmatricula.Text.ToUpper().Equals("ADMIN"))
             {
-                Navigation.PushAsync(new Configuration());
+               
+                Navigation.PushAsync(new Configuration(_database,_externalService));
 
             }
             else
@@ -94,7 +102,7 @@ namespace MPMobile
                 {
                     lbNome.Text = string.Empty;
                     status.Text = string.Empty;
-                    var result = await externalService.AcessoAsync(txtmatricula.Text, lbSentido.Text, txtIsVisitante.IsToggled);
+                    var result = await _externalService.AcessoAsync(txtmatricula.Text, lbSentido.Text, txtIsVisitante.IsToggled);
                     lbNome.Text = result.Name;
                     status.Text = result.Message;
                     status.IsVisible = true;
@@ -102,19 +110,22 @@ namespace MPMobile
                     {
                         status.BackgroundColor = Colors.Green;
                         status.TextColor = Colors.White;
-                        //inserindo em massa aqui
-                        //TODO: fazer um endpoint para passar um Array e AddRange no MS. Deixar de setar a Data pelo Back no off line
                     }
                     else
                     {
                         status.BackgroundColor = Colors.Red;
                         status.TextColor = Colors.White;
+                       
+                    }
+                    if (result.Message == "Offline")
+                    {
                         await CreateInDBLocal();
                     }
                     foto.Opacity = 0;
                     setImage(result.Imagem);
                     TextToSpeech.Default.SpeakAsync(result.Message);
                     await foto.FadeTo(1, 1000);
+
                 });
             }
 
@@ -123,13 +134,16 @@ namespace MPMobile
 
         private async Task CreateInDBLocal()
         {
-            //Salvar local
+            var config = await _database.GetAllAsync<ConfigurationEntity>();
+            
             var entity = new OffLineEntity()
             {
                 Date = DateTime.Now,
                 Matricula = txtmatricula.Text,
-                Sentido = lbSentido.Text
+                Type = lbSentido.Text,
+                Equipamento = config is not null? config.FirstOrDefault().Equipamento: 0
             };
+
             await _database.AddItemAsync<OffLineEntity>(entity);
         }
 
