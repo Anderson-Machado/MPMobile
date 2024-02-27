@@ -58,8 +58,9 @@ namespace MPMobile
                 foto.Opacity = 0;
                 setImage(result.Imagem);
                 TextToSpeech.Default.SpeakAsync(result.Message);
-                cameraView.IsVisible = false;
+                camera.IsVisible = false;
                 foto.IsVisible = true;
+                frameFoto.IsVisible = true;
                 await foto.FadeTo(1, 1000);
 
 
@@ -70,9 +71,10 @@ namespace MPMobile
 
         private void Button_Clicked(object sender, EventArgs e)
         {
-            cameraView.IsVisible = true;
+            camera.IsVisible = true;
             status.IsVisible = false;
             foto.IsVisible = false;
+            frameFoto.IsVisible = false;
             if (cameraView.Cameras.Count > 0)
             {
                 cameraView.Camera = cameraView.Cameras.First();
@@ -110,6 +112,7 @@ namespace MPMobile
                     {
                         status.BackgroundColor = Colors.Green;
                         status.TextColor = Colors.White;
+                      
                     }
                     else
                     {

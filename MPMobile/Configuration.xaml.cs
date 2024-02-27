@@ -62,6 +62,8 @@ public partial class Configuration : ContentPage
                     }
                 }
             }
+            lbQuantidade.Text = offs.Count() > 0 ? $"{offs.Count()} Registros Off." : $"{offs.Count()} Registros Off.";
+
         });
     }
 

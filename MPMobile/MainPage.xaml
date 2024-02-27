@@ -2,19 +2,23 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:cv="clr-namespace:Camera.MAUI;assembly=Camera.MAUI"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MPMobile.MainPage" x:Name="title" Title="Marca Ponto Acesso Mobile"  
+             x:Class="MPMobile.MainPage" x:Name="title" Title=""
              >
 
     <StackLayout Padding="20">
 
-        <Label x:Name="lbNome"  Text="" FontSize="20" HorizontalOptions="CenterAndExpand" Margin="0,0,0,10"/>
-        <Image x:Name="foto" Source="pessoa.png" WidthRequest="300" HeightRequest="300" Margin="0,0,0,10" Aspect="AspectFill" IsVisible="true" />
-      
+        <Label x:Name="lbNome" FontAttributes="Bold" TextColor="Red" Text="" FontSize="20" HorizontalOptions="CenterAndExpand" Margin="0,0,0,10"/>
+
+        <Frame x:Name="frameFoto" CornerRadius="20" WidthRequest="300" HeightRequest="300" Margin="0,0,0,10">
+            <Image x:Name="foto" Source="pessoa.png" WidthRequest="300" HeightRequest="300" Aspect="AspectFill" IsVisible="true"/>
+        </Frame>
+
         <Button x:Name="status" CornerRadius ="30" WidthRequest="290" Margin="0,0,0,0" IsVisible="false" Text="" HorizontalOptions="Center"/>
 
-        <cv:CameraView  x:Name="cameraView" WidthRequest="300" HeightRequest="300" BarCodeDetectionEnabled="True" IsVisible="False"
-         BarcodeDetected="cameraView_BarcodeDetected"/>
-        
+        <Frame x:Name="camera" CornerRadius="20" WidthRequest="300" HeightRequest="300" Margin="0,10,0,0" IsVisible="false">
+            <cv:CameraView x:Name="cameraView" WidthRequest="300" HeightRequest="300" BarCodeDetectionEnabled="True"  BarcodeDetected="cameraView_BarcodeDetected"/>
+        </Frame>
+
         <Entry x:Name="txtmatricula"  Placeholder="" FontSize="20" Margin="0,0,0,20" Completed="OnEntryCompleted"/>
         
         <Label x:Name="lbVisitante" Text="Consulta Pessoa" FontSize="20" HorizontalOptions="CenterAndExpand" Margin="0,0,0,0"/>
