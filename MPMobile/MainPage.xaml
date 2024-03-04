@@ -26,7 +26,7 @@
 
         <Label x:Name="lbSentido" Text="Entrada" FontSize="20" HorizontalOptions="CenterAndExpand" Margin="0,0,0,0"/>
         <Switch x:Name="txtSentido" Scale="2" HorizontalOptions="CenterAndExpand" Margin="0,0,0,50" IsToggled="true" Toggled="OnSwitchToggledSentido"/>
-
+        <ActivityIndicator x:Name="loadingIndicator" IsRunning="false" IsVisible="false" Color="Black"/>
         <Button 
             CornerRadius ="40"
             WidthRequest="290"

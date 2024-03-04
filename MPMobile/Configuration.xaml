@@ -21,9 +21,9 @@
             Clicked="Button_Clicked"
         Text="Salvar" HorizontalOptions="Center"/>
 
-        <Label x:Name="lbQuantidade" Text="teste" FontSize="20" HorizontalOptions="CenterAndExpand" Margin="0,0,0,10"/>
+        <ActivityIndicator x:Name="loadingIndicator" IsRunning="false" IsVisible="false" Color="Black"/>
+        <Label x:Name="lbQuantidade" Text="" FontSize="20" HorizontalOptions="CenterAndExpand" Margin="0,0,0,10"/>
         <Switch x:Name="txtEnvio" Scale="2" HorizontalOptions="CenterAndExpand" Margin="0,0,0,50" IsToggled="false" Toggled="OnSwitchToggledOffLine"/>
-
 
     </StackLayout>
 

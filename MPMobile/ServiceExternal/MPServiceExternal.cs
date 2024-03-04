@@ -1,24 +1,30 @@
-﻿using MPMobile.Entity;
+﻿using MPMobile.Data;
+using MPMobile.Entity;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 using static System.Net.WebRequestMethods;
 
 namespace MPMobile.ServiceExternal
 {
     public class MPServiceExternal
     {
+        private readonly DatabaseContext _database;
+
+        public MPServiceExternal()
+        {
+            _database = new DatabaseContext();
+        }
         public async Task<AppResponse> AcessoAsync(string matricula, string type, bool isVisitante = false)
         {
             try
             {
-                var url = isVisitante ? "https://a543-177-12-49-63.ngrok-free.app/Pessoa" : "https://a543-177-12-49-63.ngrok-free.app/Visitante";
+                var info = await _database.GetAllAsync<ConfigurationEntity>();
 
-                var body = new { Equipamento = 1, Type = type, Matricula = matricula };
+                var config = info.FirstOrDefault();
+
+                var url = isVisitante ? $"{config.UrlBase}/Pessoa" : $"{config.UrlBase}/Visitante";
+
+                var body = new { Equipamento = config.Equipamento, Type = type, Matricula = matricula };
 
                 var strBody = JsonConvert.SerializeObject(body);
 
@@ -55,7 +61,7 @@ namespace MPMobile.ServiceExternal
                     {
                         var error = new AppResponse()
                         {
-                            Message = "Offline"
+                            Message = "Offline!"
                         };
                         return error;
                     }
@@ -64,7 +70,7 @@ namespace MPMobile.ServiceExternal
             }
             catch (Exception ex)
             {
-                return new AppResponse() { Message = "OffLine" };
+                return new AppResponse() { Message = "Offline!" };
             }
         }
 
@@ -72,7 +78,11 @@ namespace MPMobile.ServiceExternal
         {
             try
             {
-                var url = "https://a543-177-12-49-63.ngrok-free.app/bacth";
+                var info = await _database.GetAllAsync<ConfigurationEntity>();
+
+                var config = info.FirstOrDefault();
+
+                var url = $"{config.UrlBase}/bacth";
 
                 var strBody = JsonConvert.SerializeObject(body);
 
@@ -109,7 +119,7 @@ namespace MPMobile.ServiceExternal
                     {
                         var error = new AppResponse()
                         {
-                            Message = "Offline"
+                            Message = "Offline!"
                         };
                         return error;
                     }
@@ -118,7 +128,7 @@ namespace MPMobile.ServiceExternal
             }
             catch (Exception ex)
             {
-                return new AppResponse() { Message = "OffLine!" };
+                return new AppResponse() { Message = "Offline!" };
             }
         }
     }

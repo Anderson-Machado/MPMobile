@@ -10,6 +10,7 @@ namespace MPMobile
         int count = 0;
         MPServiceExternal _externalService;
         DatabaseContext _database;
+        private bool _isOffLine;
         public MainPage()
         {
             _externalService = new MPServiceExternal();
@@ -20,7 +21,11 @@ namespace MPMobile
         }
 
 
-
+        /// <summary>
+        /// Via Codigo de barras
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
         private void cameraView_BarcodeDetected(object sender, Camera.MAUI.ZXingHelper.BarcodeEventArgs args)
         {
 
@@ -33,6 +38,8 @@ namespace MPMobile
                 txtmatricula.Text = $"{args.Result[0].Text}";
                 lbNome.Text = string.Empty;
                 status.Text = string.Empty;
+                loadingIndicator.IsRunning = true;
+                loadingIndicator.IsVisible = true;
                 var result = await _externalService.AcessoAsync(txtmatricula.Text, lbSentido.Text, txtIsVisitante.IsToggled);
                 //colocar o código de consulta a API por aqui...
 
@@ -41,6 +48,7 @@ namespace MPMobile
                 status.IsVisible = true;
                 if (result.Message == "Liberado")
                 {
+                    _isOffLine = false;
                     status.BackgroundColor = Colors.Green;
                     status.TextColor = Colors.White;
                 }
@@ -50,11 +58,17 @@ namespace MPMobile
                     status.TextColor = Colors.White;
 
                 }
-                if (result.Message == "Offline")
+                if (result.Message == "Offline!" || result.Message == null)
                 {
+                    _isOffLine = true;
+                    status.BackgroundColor = Colors.Green;
+                    status.TextColor = Colors.White;
+                    result.Message = "Liberado - OffLine";
+                    status.Text = result.Message;
                     await CreateInDBLocal();
                 }
-              
+                loadingIndicator.IsRunning = false;
+                loadingIndicator.IsVisible = false;
                 foto.Opacity = 0;
                 setImage(result.Imagem);
                 TextToSpeech.Default.SpeakAsync(result.Message);
@@ -86,7 +100,11 @@ namespace MPMobile
 
             }
         }
-
+        /// <summary>
+        /// Via digitação
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnEntryCompleted(object sender, EventArgs e)
         {
             //acessando Pagina de configuração.
@@ -98,37 +116,53 @@ namespace MPMobile
             }
             else
             {
-                //inserir validação se o campo digitado é apenas numero.
-
+               
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
-                    lbNome.Text = string.Empty;
-                    status.Text = string.Empty;
-                    var result = await _externalService.AcessoAsync(txtmatricula.Text, lbSentido.Text, txtIsVisitante.IsToggled);
-                    lbNome.Text = result.Name;
-                    status.Text = result.Message;
-                    status.IsVisible = true;
-                    if (result.Message == "Liberado")
+                    if (txtmatricula.Text.All(char.IsDigit))
                     {
-                        status.BackgroundColor = Colors.Green;
-                        status.TextColor = Colors.White;
-                      
+                        lbNome.Text = string.Empty;
+                        status.Text = string.Empty;
+                        loadingIndicator.IsRunning = true;
+                        loadingIndicator.IsVisible = true;
+                        var result = await _externalService.AcessoAsync(txtmatricula.Text, lbSentido.Text, txtIsVisitante.IsToggled);
+                        lbNome.Text = result.Name;
+                        status.IsVisible = true;
+                        status.Text = result.Message;
+                        if (result.Message == "Liberado")
+                        {
+                            status.BackgroundColor = Colors.Green;
+                            status.TextColor = Colors.White;
+
+                        }
+                        else
+                        {
+                            status.BackgroundColor = Colors.Red;
+                            status.TextColor = Colors.White;
+
+                        }
+                        if (result.Message == "Offline!" || result.Message == null)
+                        {
+                            _isOffLine = true;
+                            result.Message = "Liberado - OffLine";
+                            status.Text = result.Message;
+                            await CreateInDBLocal();
+                        }
+                        loadingIndicator.IsRunning = false;
+                        loadingIndicator.IsVisible = false;
+                        foto.Opacity = 0;
+                        setImage(result.Imagem);
+                        TextToSpeech.Default.SpeakAsync(result.Message);
+                        await foto.FadeTo(1, 1000);
                     }
                     else
                     {
                         status.BackgroundColor = Colors.Red;
                         status.TextColor = Colors.White;
-                       
+                        status.IsVisible = true;
+                        status.Text = "A Matricula precisa conter números.";
+                        TextToSpeech.Default.SpeakAsync(status.Text);
                     }
-                    if (result.Message == "Offline")
-                    {
-                        await CreateInDBLocal();
-                    }
-                    foto.Opacity = 0;
-                    setImage(result.Imagem);
-                    TextToSpeech.Default.SpeakAsync(result.Message);
-                    await foto.FadeTo(1, 1000);
-
                 });
             }
 
@@ -138,16 +172,19 @@ namespace MPMobile
         private async Task CreateInDBLocal()
         {
             var config = await _database.GetAllAsync<ConfigurationEntity>();
+            // só insere no banco se a string tiver apenas numero.
             
-            var entity = new OffLineEntity()
-            {
-                Date = DateTime.Now,
-                Matricula = txtmatricula.Text,
-                Type = lbSentido.Text,
-                Equipamento = config is not null? config.FirstOrDefault().Equipamento: 0
-            };
+            
+                var entity = new OffLineEntity()
+                {
+                    Date = DateTime.Now,
+                    Matricula = txtmatricula.Text,
+                    Type = lbSentido.Text,
+                    Equipamento = config is not null ? config.FirstOrDefault().Equipamento : 0
+                };
 
-            await _database.AddItemAsync<OffLineEntity>(entity);
+                await _database.AddItemAsync<OffLineEntity>(entity);
+            
         }
 
         private void OnSwitchToggledVisitante(object sender, ToggledEventArgs e)

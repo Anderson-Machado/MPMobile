@@ -53,16 +53,34 @@ public partial class Configuration : ContentPage
 
             if (offs.Any())
             {
+                loadingIndicator.IsRunning = true;
+                loadingIndicator.IsVisible = true;
               var result = await _externalService.AcessoInBacthAsync(offs);
                 if(result.Message == "Inserido com sucesso.")
                 {
                     foreach (var item in offs)
                     {
                      await _database.DeleteItemAsync(item);
+                        offs.ToList().Remove(item);
+                        lbQuantidade.Text = offs.Count().ToString();
                     }
+                    loadingIndicator.IsRunning = false;
+                    loadingIndicator.IsVisible = false;
+                    DisplayAlert("Configuração", $"{offs.Count()} foram carregadas com sucesso.", "OK");
+                    Navigation.PopAsync();
                 }
+                else
+                {
+                    loadingIndicator.IsRunning = false;
+                    loadingIndicator.IsVisible = false;
+                    DisplayAlert("Configuração", $"Falha ao inserir registro OffLine.", "OK");
+
+                }
+
+
+
             }
-            lbQuantidade.Text = offs.Count() > 0 ? $"{offs.Count()} Registros Off." : $"{offs.Count()} Registros Off.";
+
 
         });
     }
